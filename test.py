@@ -15,6 +15,9 @@ def compile_cpp_file(filename):
 def run_python_file(filename, input_file, output_file):
     os.system(f"python3 {filename} < {input_file} > {output_file}")
 
+def run_java_file(filename, input_file, output_file):
+    os.system(f"java {filename} < {input_file} > {output_file}")
+
 def mark_differences(output_lines, expected_lines):
     marked_lines = []
 
@@ -35,6 +38,7 @@ def check_tests():
     sol_file = "sol."  # Specify the name of your sol file without extension
     cpp_filename = sol_file + "cpp"
     py_filename = sol_file + "py"
+    java_filename = sol_file + "java"
 
     if os.path.exists(cpp_filename):
         executable = compile_cpp_file(cpp_filename)
@@ -128,9 +132,53 @@ def check_tests():
                 print("Expected Output:")
                 print(expected_output)
             print()
+    elif os.path.exists(java_filename):
+        test_files = []
+        for file in os.listdir('.'):
+            if file.startswith('sol_') and file.endswith('.in'):
+                input_file = file
+                output_file = file.replace('sol_', 'ans_').replace('.in', '.out')
+                test_files.append((input_file, output_file))
+
+        if not test_files:
+            print("No test files found in the directory.")
+            return
+
+        test_files = sorted(test_files)
+
+        for i, (input_file, output_file) in enumerate(test_files, start=1):
+            with open(input_file, 'r') as input_f:
+                input_data = input_f.read().strip()
+
+            expected_output_file = output_file  # Assume expected output has the same name as the output file
+            expected_output = None
+            with open(expected_output_file, 'r') as expected_output_f:
+                expected_output = expected_output_f.read().strip()
+
+            run_java_file(java_filename, input_file, f"sol_{i}.out")
+
+            output_data = None
+            with open(f"sol_{i}.out", 'r') as output_f:
+                output_data = output_f.read().rstrip()
+
+            output_lines = [line[:-1] if line.endswith(' ') else line for line in output_data.split('\n')]
+            expected_lines = [line[:-1] if line.endswith(' ') else line for line in expected_output.split('\n')]
+
+            if output_lines == expected_lines:
+                print(f"Test {i} Passed!")
+            else:
+                print(f"Test {i} Failed.")
+                print("Xiao's Output:")
+                print('\n'.join(mark_differences(output_data.split('\n'), expected_output.split('\n'))))
+                print("-------------------")
+                print("Expected Output:")
+                print(expected_output)
+            print()
 
     else:
         print(f"Unsupported sol file. Please provide either {cpp_filename} or {py_filename}.")
 
 # Example usage:
 check_tests()
+
+
