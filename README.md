@@ -1,6 +1,6 @@
 # CP-pro
 This is a tool for competitive programmer to automatically get the test case input/output files.
-Currently only supports C++ and Python.
+Currently only supports C++, Python and Java.
 ## Requirements
 - competitive-companion browser extension (https://github.com/jmerle/competitive-companion)
 - Python3 with `socket` `json` package
